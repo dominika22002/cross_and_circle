@@ -1,33 +1,33 @@
 #ifndef BOARD_HH
 #define BOARD_HH
 
-#include "library.hh"
-#include "mgraph.hh"
+#include <vector>
+#include <iostream>
+#include <math.h>
+#include <memory>
+#include <iomanip>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
 class Board
 {
-    MGraph circle;
-    MGraph cross;
     vector<vector<int> > board;
     int size;
-    int wielkosc;
+    int row;
 
 public:
     vector<int> operator[](int Ind) const { return board[Ind]; }
     vector<int> &operator[](int Ind) { return board[Ind]; }
     int getsize() const { return size; }
     int &getsize() { return size; }
-    int getwielkosc() const { return wielkosc; }
-    int &getwielkosc() { return wielkosc; }
-    void choice();
+    int getrow() const { return row; }
+    int &getrow() { return row; }
     Board()
     {
         cout << "Board()" << endl;
         size = 0;
-        circle.create(size);
-        cross.create(size);
         for (int i = 0; i < size; i++)
         {
             vector<int> vector_pom;
@@ -43,10 +43,6 @@ public:
     {
         cout << "Board(int wiel)" << endl;
         size = wiel;
-        circle.getsize() = size;
-        cross.getsize() = size;
-        circle.create(size);
-        cross.create(size);
         for (int i = 0; i < size; i++)
         {
             vector<int> vector_pom;
@@ -57,203 +53,252 @@ public:
             board.push_back(vector_pom);
         }
     }
+
+    bool isfull()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (board[i][j] == 0)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     void wyswietl()
     {
+        cout << "void wyswietl()" << endl;
         for (int i = 0; i < size; i++)
         {
             cout << " " << i << "\t";
         }
-        cout << "\n";
         for (int i = 0; i < size; i++)
         {
+            cout << "\n"
+                 << i << " ";
             for (int j = 0; j < size; j++)
             {
                 if (board[i][j] == 0)
                 {
                     cout << "[ ]\t";
                 }
-                if (board[i][j] == 1)
+                if (board[i][j] == -1)
                 {
                     cout << "[X]\t";
                 }
-                if (board[i][j] == 2)
+                if (board[i][j] == 1)
                 {
                     cout << "[O]\t";
                 }
             }
-            cout << "\n";
         }
     }
     int czy_wygrana()
     {
-        int a = 0, b = 0, c = 0,d=0;
+        int a = 0, b = 0, c = 0, d = 0;
         for (int i = 0; i < size; i++)
         {
-            for (int k = 0; k <= size - wielkosc; k++)
+            for (int k = 0; k <= size - row; k++)
             {
                 a = board[i][k];
                 c = board[k][i];
-                if (a == 1 || a == 2)
+                if (a == 1 || a == -1)
                 {
                     b = 0;
-                    for (int j = k; j < wielkosc + k; j++)
+                    for (int j = k; j < row + k; j++)
                     {
                         if (board[i][j] == a)
                             b++;
-                        if (b == wielkosc)
+                        if (b == row)
                         {
                             if (a == 1)
-                                return 1;
+                                return 1; //wygrana O
 
-                            if (a == 2)
-                                return 2;
+                            if (a == -1)
+                                return -1; //wygrana X
                         }
                     }
                 }
-                if (c == 1 || c == 2)
+                if (c == 1 || c == -1)
                 {
                     b = 0;
-                    for (int j = k; j < wielkosc + k; j++)
+                    for (int j = k; j < row + k; j++)
                     {
                         if (board[j][i] == c)
                             b++;
-                        if (b >= wielkosc)
+                        if (b >= row)
                         {
                             if (c == 1)
-                                return 1;
+                                return 1; //wygrana O
 
-                            if (c == 2)
-                                return 2;
+                            if (c == -1)
+                                return -1; //wygrana X
                         }
                     }
                 }
             }
         }
-        for (int i = 0; i <= size - wielkosc; i++)
+        for (int i = 0; i <= size - row; i++)
         {
-            for (int k = 0; k <= size - wielkosc; k++)
+            for (int k = 0; k <= size - row; k++)
             {
                 d = board[i][k];
-                if (d == 1 || d == 2)
+                if (d == 1 || d == -1)
                 {
                     b = 0;
-                    for (int j=0; j < wielkosc; j++)
+                    for (int j = 0; j < row; j++)
                     {
-                        // cout << "i = " << i+j << "  j = " << j+k << "   board[i][j] = " << board[i+j][j+k] <<endl;
-                        if (board[j+i][j+k] == d)
+                        if (board[j + i][j + k] == d)
                             b++;
-                        if (b >= wielkosc)
+                        if (b >= row)
                         {
                             if (d == 1)
-                                return 1;
+                                return 1; //wygrana O
 
-                            if (d == 2)
-                                return 2;
+                            if (d == -1)
+                                return -1; //wygrana X
                         }
                     }
                 }
             }
         }
-        for (int i = 0; i <= size - wielkosc; i++)
+        for (int i = 0; i <= size - row; i++)
         {
-            for (int k = size - 1; k >= wielkosc-1; k--)
+            for (int k = size - 1; k >= row - 1; k--)
             {
                 d = board[i][k];
-                if (d == 1 || d == 2)
+                if (d == 1 || d == -1)
                 {
                     b = 0;
-                    for (int j = k; j > k-wielkosc; j--)
+                    for (int j = k; j > k - row; j--)
                     {
-                        if (board[size-1-j][j] == d)
+                        if (board[size - 1 - j][j] == d)
                             b++;
-                        if (b >= wielkosc)
+                        if (b >= row)
                         {
                             if (d == 1)
-                                return 1;
+                                return 1; //wygrana O
 
-                            if (d == 2)
-                                return 2;
+                            if (d == -1)
+                                return -1; //wygrana X
                         }
                     }
                 }
             }
         }
-        return 0;
+        if (isfull())
+        {
+            // cout << "remis \n";
+            return 0; //remis
+        }
+        return 2; //gra jeszcze trwa
     }
 
     void czyja_wygrana(int wygrana)
     {
+        cout << "void czyja_wygrana(int wygrana)" << endl;
+        if (wygrana == -1)
+        {
+            cout << "Wygrywaja krzyzyki!\n";
+        }
         if (wygrana == 1)
         {
-            cout << "Wygrywaja krzyzyki!!!!\n";
-        }
-        if (wygrana == 2)
-        {
-            cout << "Wygrywaja kolka!!!!\n";
+            cout << "Wygrywaja kolka!\n";
         }
         if (wygrana == 0)
         {
             cout << "remis!\n";
         }
     }
-    bool full()
-    {
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size; j++)
-            {
-                if (board[i][j] == 0)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    void play()
-    {
-        cout << "zacznij gre, wpisz wspolrzedne dla X" << endl;
-        int x = 0, xx = 0, y = 0, yy = 0, liczba = 0, pom = 0, wygrana = 0;
-        bool wybor = true;
-        int tmp[2];
-        while (full() && wybor)
-        {
-            cin >> x;
-            cin >> y;
-            if (board[x][y] != 0)
-            {
-                cout << "wybierz inne liczby " << endl;
-            }
-            else
-            {
-                liczba = x * size + y;
-                cross.add_element(liczba);
-                circle.remove_element(liczba);
-                board[x][y] = 1;
-                wyswietl();
-                wygrana = czy_wygrana();
-                if (wygrana == 1 || wygrana == 2)
-                {
-                    wybor = false;
-                }
-                if (full())
-                {
-                    circle.random(board, tmp);
-                    pom = tmp[0] * size + tmp[1];
-                    circle.add_element(pom);
-                    cross.remove_element(pom);
-                    board[tmp[0]][tmp[1]] = 2;
-                    wyswietl();
-                }
-            }
-            wygrana = czy_wygrana();
-            if (wygrana == 1 || wygrana == 2)
-            {
-                wybor = false;
-            }
-        }
-        czyja_wygrana(wygrana);
-    }
+
+    // human - x ---- -1
+    // ai    - o ----  1
 };
+int min_max(Board tablica, int depth, bool ishuman)
+{
+    int bestscore = 0;
+    int result = 0;
+    if (tablica.czy_wygrana() != 2)
+    {
+        return tablica.czy_wygrana();
+    }
+    if (ishuman)
+    {
+        bestscore = -10000000;
+        for (int i = 0; i < tablica.getsize(); i++)
+        {
+            for (int j = 0; j < tablica.getsize(); j++)
+            {
+                // cout << "i. " << i << "  j." << j << endl;
+                if (tablica[i][j] == 0)
+                {
+                    tablica[i][j] = -1;
+                    result = min_max(tablica, depth + 1, !ishuman);
+                    bestscore = max(bestscore, result);
+                    if (bestscore != result)
+                    {
+                        cout <<i  <<" " << j<<" "<<bestscore <<" "<< result<< endl;
+                    }
+                    
+                    
+                    tablica[i][j] = 0;
+                }
+            }
+        }
+        return bestscore;
+    }
+    else
+    {
+        bestscore = 10000000;
+        for (int i = 0; i < tablica.getsize(); i++)
+        {
+            for (int j = 0; j < tablica.getsize(); j++)
+            {
+                if (tablica[i][j] == 0)
+                {
+                    tablica[i][j] = 1;
+                    bestscore = min(bestscore, min_max(tablica, depth + 1, !ishuman));
+                    tablica[i][j] = 0;
+                }
+            }
+        }
+        return bestscore;
+    }
+}
+void choice(Board tablica, int pomoc[2])
+{
+    cout << "void choice(Board tablica,int pomoc[2])" << endl;
+    int bestscore = -100000000;
+    int a = 0, b = 0;
+    pomoc[0] = -1;
+    pomoc[1] = -1;
+    for (int i = 0; i < tablica.getsize(); i++)
+    {
+        for (int j = 0; j < tablica.getsize(); j++)
+        {
+            if (tablica[i][j] == 0)
+            {
+                tablica[i][j] = -1;
+                int choosen = min_max(tablica, 0, false);
+                tablica[i][j] = 0;
+                // cout << choosen << endl;
+                if (choosen > bestscore)
+                {
+                    bestscore = choosen;
+                    a = i;
+                    b = j;
+                    cout << "wylazlam najlepszy znaleziony to: " << a << " " << b <<"   dla"<< choosen<<  endl;
+                }
+                else
+                    cout << "nie ma najlepszego, wygrywa:   " << choosen << endl;
+            }
+        }
+    }
+    pomoc[0] = a;
+    pomoc[1] = b;
+}
 
 #endif
