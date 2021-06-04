@@ -252,7 +252,7 @@ bool isMovesLeft(Board board)
                 return true;
     return false;
 }
-int min_max(Board board, int depth, bool ishuman)
+int min_max(Board board, int depth, bool ishuman,int height)
 {
     // board.wyswietl();
     int result = 0;
@@ -260,13 +260,17 @@ int min_max(Board board, int depth, bool ishuman)
 
     if (score == 10)
         return score;
-
+    
     if (score == -10)
         return score;
-
+    
     if (isMovesLeft(board) == false)
         return 0;
 
+    if (height<=depth)
+        return 0;
+    
+    
     if (ishuman)
     {
         int bestscore = -1000000;
@@ -277,8 +281,9 @@ int min_max(Board board, int depth, bool ishuman)
                 if (board[i][j] == empty)
                 {
                     board[i][j] = player;
-                    result = min_max(board, depth + 1, !ishuman);
-                    bestscore = max(bestscore, result);
+                    result = min_max(board, depth + 1, !ishuman,height);
+                    bestscore = max(bestscore, result); 
+                    height = min(height,depth);
                     board[i][j] = empty;
                 }
             }
@@ -295,7 +300,9 @@ int min_max(Board board, int depth, bool ishuman)
                 if (board[i][j] == empty)
                 {
                     board[i][j] = ai;
-                    bestscore = min(bestscore, min_max(board, depth + 1, !ishuman));
+                    result = min_max(board, depth + 1, !ishuman,height);
+                    bestscore = min(bestscore, result);
+                    height = min(height,depth);
                     board[i][j] = empty;
                 }
             }
@@ -306,11 +313,15 @@ int min_max(Board board, int depth, bool ishuman)
 
 void choice(Board board, int pomoc[2],bool ifai,char who,int bestscor)
 {
+    unsigned long int czas;
+    clock_t start, stop;
     cout << "void choice(Board board, int pomoc[2])" << endl;
     int bestscore = bestscor;
     // int bestscore = -10000000;
+    int height = 10000;
+    int depth=0;
     int choosen = 0;
-    int a = 0, b = 0;
+    int a = 0, b = 0,c=0;
     pomoc[0] = -1;
     pomoc[1] = -1;
     for (int i = 0; i < board.getsize(); i++)
@@ -320,13 +331,15 @@ void choice(Board board, int pomoc[2],bool ifai,char who,int bestscor)
             if (board[i][j] == empty)
             {
                 board[i][j] = who;
-                // board[i][j] = player;
-                int choosen = min_max(board, 0, ifai);
+                c = height;
+                start = clock();
+                int choosen = min_max(board, depth, ifai, height);
+                stop = clock();
                 // cout << choosen << endl;
                 board[i][j] = empty;
                 if (bestscor < 0)
                 {
-                    if (choosen > bestscore)
+                    if (choosen > bestscore /*&& height<c*/)
                     {
                         bestscore = choosen;
                         a = i;
@@ -335,13 +348,15 @@ void choice(Board board, int pomoc[2],bool ifai,char who,int bestscor)
                 }
                 else
                 {
-                    if (choosen < bestscore)
+                    if (choosen < bestscore /*&& height<c*/)
                     {
                         bestscore = choosen;
                         a = i;
                         b = j;
                     }
                 }
+                czas = 1000000 * (stop - start) / CLOCKS_PER_SEC;
+                // cout << "time: " << czas << endl;
             }
         }
     }
