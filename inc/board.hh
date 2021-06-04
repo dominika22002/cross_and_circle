@@ -1,5 +1,5 @@
-#ifndef BOARD_HH
-#define BOARD_HH
+#ifndef plansza_HH
+#define plansza_HH
 
 #include <vector>
 #include <iostream>
@@ -11,22 +11,22 @@
 #include "boardcopy.hh"
 
 using namespace std;
-class Board
+class Plansza
 {
-    vector<vector<char> > board;
+    vector<vector<char> > plansza;
     int size;
     int row;
 
 public:
-    vector<char> operator[](int Ind) const { return board[Ind]; }
-    vector<char> &operator[](int Ind) { return board[Ind]; }
+    vector<char> operator[](int Ind) const { return plansza[Ind]; }
+    vector<char> &operator[](int Ind) { return plansza[Ind]; }
     int getsize() const { return size; }
     int &getsize() { return size; }
     int getrow() const { return row; }
     int &getrow() { return row; }
-    Board(int wiel)
+    Plansza(int wiel)
     {
-        cout << "Board(int wiel)" << endl;
+        cout << "plansza(int wiel)" << endl;
         size = wiel;
         for (int i = 0; i < size; i++)
         {
@@ -35,7 +35,7 @@ public:
             {
                 vector_pom.push_back(empty);
             }
-            board.push_back(vector_pom);
+            plansza.push_back(vector_pom);
         }
     }
 
@@ -48,59 +48,59 @@ public:
         {
             for (int j = 0; j < 3; j++)
             {
-                in >> board[i][j];
+                in >> plansza[i][j];
             }
         }
         in.close();
     }
 
-    bool isfull()
-    {
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size; j++)
-            {
-                if (board[i][j] == empty)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
     void wyswietl()
     {
-        cout << "void wyswietl()" << endl;
+        // cout << "void wyswietl()" << endl;
+        // system("clear");
+        cout << "\t ";
         for (int i = 0; i < size; i++)
         {
-            cout << " " << i << "\t";
+            cout << i << "\t ";
         }
         for (int i = 0; i < size; i++)
         {
             cout << "\n"
-                 << i << " ";
+                 << i << "\t";
             for (int j = 0; j < size; j++)
             {
-                if (board[i][j] == empty)
+                if (plansza[i][j] == empty)
                 {
                     cout << "[ ]\t";
                 }
-                if (board[i][j] == 'X')
+                if (plansza[i][j] == 'X')
                 {
                     cout << "[X]\t";
                 }
-                if (board[i][j] == 'O')
+                if (plansza[i][j] == 'O')
                 {
                     cout << "[O]\t";
                 }
             }
         }
+        cout << endl;
+    }
+
+    bool zajete(int x, int y)
+    {
+        if (x >= size || y >= size || plansza[x][y] != empty)
+        {
+            cout << "wybierz inne liczby " << endl;
+            return true;
+        }
+        else
+            return false;
     }
 
     void czyja_wygrana(int wygrana)
     {
 
-        cout << "void czyja_wygrana(int wygrana)" << endl;
+        // cout << "void czyja_wygrana(int wygrana)" << endl;
         if (wygrana == -10)
         {
             cout << "Wygrywaja krzyzyki!\n";
@@ -119,251 +119,244 @@ public:
     // ai    - o ----  1
 
     void random(int pomoc[2])
-     {
-         cout <<"void random(int pomoc[2])" << endl;
-         bool wybor = true;
-         int a = 0, b = 0;
-         while (wybor)
-         {
+    {
+        cout << "void random(int pomoc[2])" << endl;
+        bool wybor = true;
+        int a = 0, b = 0;
+        while (wybor)
+        {
             //  cout << size << endl;
-             a = rand() % size;
-             b = rand() % size;
-             if (board[a][b] == empty)
-             {
-                 wybor = false;
-             }
-         }
-         pomoc[0] = a;
-         pomoc[1] = b;
-     }
+            a = rand() % size;
+            b = rand() % size;
+            if (plansza[a][b] == empty)
+            {
+                wybor = false;
+            }
+        }
+        pomoc[0] = a;
+        pomoc[1] = b;
+    }
 };
 
-int czy_wygrana(Board board)
+int czy_wygrana(Plansza plansza)
 {
-    
-        char a, c, d;
-        int b = 0;
-        for (int i = 0; i < board.getsize(); i++)
-        {
-            for (int k = 0; k <= board.getsize() - board.getrow(); k++)
-            {
-                a = board[i][k];
-                if (a == player || a == ai)
-                {
-                    b = 0;
-                    for (int j = k; j < board.getrow() + k; j++)
-                    {
-                        if (board[i][j] == a)
-                            b++;
-                        if (b == board.getrow())
-                        {
-                            if (a == ai)
-                                return -10; //wygrana O
 
-                            if (a == player)
-                                return +10; //wygrana X
-                        }
+    char a, c, d;
+    int b = 0;
+    for (int i = 0; i < plansza.getsize(); i++)
+    {
+        for (int k = 0; k <= plansza.getsize() - plansza.getrow(); k++)
+        {
+            a = plansza[i][k];
+            if (a == player || a == ai)
+            {
+                b = 0;
+                for (int j = k; j < plansza.getrow() + k; j++)
+                {
+                    if (plansza[i][j] == a)
+                        b++;
+                    if (b == plansza.getrow())
+                    {
+                        if (a == ai)
+                            return -10; //wygrana O
+
+                        if (a == player)
+                            return +10; //wygrana X
                     }
                 }
             }
         }
-
-        for (int i = 0; i < board.getsize(); i++)
-        {
-            for (int k = 0; k <= board.getsize() - board.getrow(); k++)
-            {
-                c = board[k][i];
-                if (c == player || c == ai)
-                {
-                    b = 0;
-                    for (int j = k; j < board.getrow() + k; j++)
-                    {
-                        if (board[j][i] == c)
-                            b++;
-                        if (b >= board.getrow())
-                        {
-                            if (c == ai)
-                                return -10; //wygrana O
-
-                            if (c == player)
-                                return +10; //wygrana X
-                        }
-                    }
-                }
-            }
-        }
-        for (int i = 0; i <= board.getsize() - board.getrow(); i++)
-        {
-            for (int k = 0; k <= board.getsize() - board.getrow(); k++)
-            {
-                d = board[i][k];
-                if (d == player || d == ai)
-                {
-                    b = 0;
-                    for (int j = 0; j < board.getrow(); j++)
-                    {
-                        if (board[j + i][j + k] == d)
-                            b++;
-                        if (b >= board.getrow())
-                        {
-                            if (d == ai)
-                                return -10; //wygrana O
-
-                            if (d == player)
-                                return +10; //wygrana X
-                        }
-                    }
-                }
-            }
-        }
-        for (int i = 0; i <= board.getsize() - board.getsize(); i++)
-        {
-            for (int k = board.getsize() - 1; k >= board.getrow() - 1; k--)
-            {
-                d = board[i][k];
-                if (d == player || d == ai)
-                {
-                    b = 0;
-                    for (int j = k; j > k - board.getrow(); j--)
-                    {
-                        if (board[board.getsize() - 1 - j][j] == d)
-                            b++;
-                        if (b >= board.getrow())
-                        {
-                            if (d == ai)
-                                return -10; //wygrana O
-
-                            if (d == player)
-                                return +10; //wygrana X
-                        }
-                    }
-                }
-            }
-        }
-        return 0;
     }
 
-bool isMovesLeft(Board board)
-{
-    // cout << "bool isMovesLeft(Board board)" << endl;
-    for (int i = 0; i < board.getsize(); i++)
-        for (int j = 0; j < board.getsize(); j++)
-            if (board[i][j] == empty)
-                return true;
-    return false;
-}
-int min_max(Board board, int depth, bool ishuman,int height)
-{
-    // board.wyswietl();
-    int result = 0;
-    int score = czy_wygrana(board);
-
-    if (score == 10)
-        return score;
-    
-    if (score == -10)
-        return score;
-    
-    if (isMovesLeft(board) == false)
-        return 0;
-
-    if (height<=depth)
-        return 0;
-    
-    
-    if (ishuman)
+    for (int i = 0; i < plansza.getsize(); i++)
     {
-        int bestscore = -1000000;
-        for (int i = 0; i < board.getsize(); i++)
+        for (int k = 0; k <= plansza.getsize() - plansza.getrow(); k++)
         {
-            for (int j = 0; j < board.getsize(); j++)
+            c = plansza[k][i];
+            if (c == player || c == ai)
             {
-                if (board[i][j] == empty)
+                b = 0;
+                for (int j = k; j < plansza.getrow() + k; j++)
                 {
-                    board[i][j] = player;
-                    result = min_max(board, depth + 1, !ishuman,height);
-                    bestscore = max(bestscore, result); 
-                    height = min(height,depth);
-                    board[i][j] = empty;
+                    if (plansza[j][i] == c)
+                        b++;
+                    if (b >= plansza.getrow())
+                    {
+                        if (c == ai)
+                            return -10; //wygrana O
+
+                        if (c == player)
+                            return +10; //wygrana X
+                    }
                 }
             }
         }
-        return bestscore;
+    }
+    for (int i = 0; i <= plansza.getsize() - plansza.getrow(); i++)
+    {
+        for (int k = 0; k <= plansza.getsize() - plansza.getrow(); k++)
+        {
+            d = plansza[i][k];
+            if (d == player || d == ai)
+            {
+                b = 0;
+                for (int j = 0; j < plansza.getrow(); j++)
+                {
+                    if (plansza[j + i][j + k] == d)
+                        b++;
+                    if (b >= plansza.getrow())
+                    {
+                        if (d == ai)
+                            return -10; //wygrana O
+
+                        if (d == player)
+                            return +10; //wygrana X
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 0; i <= plansza.getsize() - plansza.getsize(); i++)
+    {
+        for (int k = plansza.getsize() - 1; k >= plansza.getrow() - 1; k--)
+        {
+            d = plansza[i][k];
+            if (d == player || d == ai)
+            {
+                b = 0;
+                for (int j = k; j > k - plansza.getrow(); j--)
+                {
+                    if (plansza[plansza.getsize() - 1 - j][j] == d)
+                        b++;
+                    if (b >= plansza.getrow())
+                    {
+                        if (d == ai)
+                            return -10; //wygrana O
+
+                        if (d == player)
+                            return +10; //wygrana X
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+bool isfull(Plansza plansza)
+{
+    // cout << "bool isMovesLeft(plansza plansza)" << endl;
+    for (int i = 0; i < plansza.getsize(); i++)
+    {
+        for (int j = 0; j < plansza.getsize(); j++)
+        {
+            if (plansza[i][j] == empty)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+int min_max(Plansza plansza, int depth, bool ishuman, int height)
+{
+    // plansza.wyswietl();
+    int result = 0;
+    int score = czy_wygrana(plansza);
+
+    if (score == 10 || score == -10)
+        return score;
+
+    if (isfull(plansza) == false || height <= depth)
+        return 0;
+
+    if (ishuman)
+    {
+        int wynik = -1000000;
+        for (int i = 0; i < plansza.getsize(); i++)
+        {
+            for (int j = 0; j < plansza.getsize(); j++)
+            {
+                if (plansza[i][j] == empty)
+                {
+                    plansza[i][j] = player;
+                    result = min_max(plansza, depth + 1, !ishuman, height);
+                    wynik = max(wynik, result);
+                    if (plansza.getsize() != 3)
+                        height = min(height, depth);
+                    plansza[i][j] = empty;
+                }
+            }
+        }
+        return wynik;
     }
     else
     {
-        int bestscore = 1000000;
-        for (int i = 0; i < board.getsize(); i++)
+        int wynik = 1000000;
+        for (int i = 0; i < plansza.getsize(); i++)
         {
-            for (int j = 0; j < board.getsize(); j++)
+            for (int j = 0; j < plansza.getsize(); j++)
             {
-                if (board[i][j] == empty)
+                if (plansza[i][j] == empty)
                 {
-                    board[i][j] = ai;
-                    result = min_max(board, depth + 1, !ishuman,height);
-                    bestscore = min(bestscore, result);
-                    height = min(height,depth);
-                    board[i][j] = empty;
+                    plansza[i][j] = ai;
+                    result = min_max(plansza, depth + 1, !ishuman, height);
+                    wynik = min(wynik, result);
+                    if (plansza.getsize() != 3)
+                        height = min(height, depth);
+                    plansza[i][j] = empty;
                 }
             }
         }
-        return bestscore;
+        return wynik;
     }
 }
 
-void choice(Board board, int pomoc[2],bool ifai,char who,int bestscor)
+void choice(Plansza plansza, int pomoc[2], bool ifai, char who, int bestscor)
 {
     unsigned long int czas;
     clock_t start, stop;
-    cout << "void choice(Board board, int pomoc[2])" << endl;
-    int bestscore = bestscor;
-    // int bestscore = -10000000;
+    // cout << "void choice(plansza plansza, int pomoc[2])" << endl;
+    int wynik = bestscor;
     int height = 10000;
-    int depth=0;
+    int depth = 0;
     int choosen = 0;
-    int a = 0, b = 0,c=0;
+    int a = 0, b = 0, c = 0;
     pomoc[0] = -1;
     pomoc[1] = -1;
-    for (int i = 0; i < board.getsize(); i++)
+    for (int i = 0; i < plansza.getsize(); i++)
     {
-        for (int j = 0; j < board.getsize(); j++)
+        for (int j = 0; j < plansza.getsize(); j++)
         {
-            if (board[i][j] == empty)
+            if (plansza[i][j] == empty)
             {
-                board[i][j] = who;
+                plansza[i][j] = who;
                 c = height;
-                start = clock();
-                int choosen = min_max(board, depth, ifai, height);
-                stop = clock();
-                // cout << choosen << endl;
-                board[i][j] = empty;
+                int choosen = min_max(plansza, depth, ifai, height);
+                plansza[i][j] = empty;
                 if (bestscor < 0)
                 {
-                    if (choosen > bestscore /*&& height<c*/)
+                    if (choosen > wynik)
                     {
-                        bestscore = choosen;
+                        wynik = choosen;
                         a = i;
                         b = j;
                     }
                 }
                 else
                 {
-                    if (choosen < bestscore /*&& height<c*/)
+                    if (choosen < wynik)
                     {
-                        bestscore = choosen;
+                        wynik = choosen;
                         a = i;
                         b = j;
                     }
                 }
-                czas = 1000000 * (stop - start) / CLOCKS_PER_SEC;
-                // cout << "time: " << czas << endl;
             }
         }
     }
     pomoc[0] = a;
     pomoc[1] = b;
-    // printf("The value of the best Move is : %d\n",
-        //    bestscore);
 }
 
 #endif
